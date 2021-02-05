@@ -1,0 +1,59 @@
+from visual import *
+
+#Define the moon and earth and their position (pos),
+#the size of the spheres (radius), and color
+earth = sphere(pos=vector(0,0,0), radius=3*10**7, color = color.blue)
+moon = sphere(pos=vector(3.84*10**8,0,0), radius=1*10**7, color = color.white)
+pluto = sphere(pos=vector(8*10**8,0,0) radius=1.2*10**7, color = color.yellow)
+
+#Create a line showing where the moon was
+moontrail = curve(color=color.white)
+plutotrail = curve(color=color.yellow)
+
+#Set the masses of the moon and earth
+moon.mass = 7.34*10**22 
+earth.mass = 6*10**24 
+pluto.mass = 1.30900*10**22
+
+#Set the initial velocity of moon and earth
+moon.v = vector(0,1022,0)
+earth.v = vector(0,12.5,0)
+pluto.v = vector(0,0,0)
+
+#Define Gravitational constant (G) and how many seconds in one step of code (dt)
+G = 6.67*10**-11
+dt = 60
+t = 0
+
+#Continue to run everything indented until the statement inside parenthesis
+#is no longer true
+while(t < 100000000):
+    rate(2000000)
+    
+    #Define the radius as a vector between the moon and earth
+    radius = moon.pos - earth.pos
+    rhat = radius/radius.mag
+
+    #Define the Force of Gravity moon feels
+    Force_Gravity = G*moon.mass*earth.mass/(radius.mag**2)* (-1*rhat)
+
+    #Kinematic Equations defining acceleration, velocity, position
+    earth.a = Force_Gravity/earth.mass
+    earth.v = earth.v + (earth.a)*dt
+    earth.pos = earth.pos + earth.v*dt
+    moon.a = Force_Gravity/moon.mass
+    moon.v = moon.v + (moon.a)*dt
+    moon.pos = moon.pos + moon.v*dt
+    pluto.a = Force_Gravity/pluto.mass
+    pluto.v = pluto.v + (pluto.a)*dt
+    pluto.pos = pluto.pos + pluto.v*dt
+
+    #Update curve showing where moon has been, advance time
+    plutotrail.append(pos=pluto.pos)
+    moontrail.append(pos=moon.pos)
+    t = t + dt
+    
+    #Print the momentum (p) and angular momentum (L) of the moon/earth system.
+    if (t % 400000 == 0):
+        print("p = ", moon.v*moon.mass + earth.v*earth.mass + pluto.v*pluto.mass)
+        print("L = ", cross(moon.pos,moon.v*moon.mass) + cross(earth.pos,earth.v*earth.mass) + cross(pluto.pos,pluto.v*pluto.mass))

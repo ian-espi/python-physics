@@ -1,0 +1,113 @@
+from visual import *
+
+#Define particles as spheres
+proton1 = sphere(pos=(1*10**-14,0,0), radius=6*10**-13, color = color.magenta)
+proton2 = sphere(pos=(0,1*10**-14,0), radius=6*10**-13, color = color.cyan)
+proton3 = sphere(pos=(0,0,1*10**-14), radius=6*10**-13, color = color.red)
+
+electron1 = sphere(pos=(5.3*10**(-11),0,0), radius = 2*10**-13, color = color.white)
+electron2 = sphere(pos=(-5.3*10**(-11),0,0), radius = 2*10**-13, color = color.white)
+electron3 = sphere(pos=(1.06*10**(-10),0,0), radius = 2*10**-13, color = color.white)
+
+#Define the trails and masses
+electrontrail = curve(color=color.cyan)
+electrontrail2 = curve(color=color.yellow)
+electrontrail3 = curve(color=color.magenta)
+
+proton1.mass = 1.67*10**(-27)
+proton2.mass = 1.67*10**(-27)
+proton3.mass = 1.67*10**(-27)
+
+electron1.mass = 9.11*10**(-31)
+electron2.mass = 9.11*10**(-31)
+electron3.mass = 9.11*10**(-31)
+
+#Define Velocities
+electron1.v = vector(0,3.78*10**6,0)
+electron2.v = vector(0,-3.78*10**6,0)
+electron3.v = vector(0,2.68*10**6,0)
+
+proton1.v = vector(0,0,0)
+proton2.v = vector(0,0,0)
+proton3.v = vector(0,0,0)
+
+#Define Constants
+k = 9*10**9
+e = 1.6*10**-19
+dt = 3*10**-21
+t = 0
+
+while(t < 4000000):
+    rate(5000)
+
+    #Find r between electron and proton
+    radius1 = electron1.pos - proton1.pos
+    radius12 = electron1.pos - proton2.pos
+    radius13 = electron1.pos - proton3.pos
+
+    radius2 = electron2.pos - proton2.pos
+    radius22 = electron2.pos - proton1.pos
+    radius23 = electron2.pos - proton3.pos
+
+    radius3 = electron3.pos - proton3.pos
+    radius32 = electron3.pos - proton2.pos
+    radius33 = electron3.pos - proton1.pos
+
+    #Find r between electron and electron
+    eradius12 = electron1.pos - electron2.pos
+    eradius13 = electron1.pos - electron3.pos
+    eradius23 = electron2.pos - electron3.pos
+
+    #Define Force between Electron and Proton
+    electricForce1 = (k*(-e)*(3*e)/(radius1.dot(radius1)))*radius1.norm()
+    electricForce12 = (k*(-e)*(3*e)/(radius12.dot(radius12)))*radius12.norm()
+    electricForce13 = (k*(-e)*(3*e)/(radius13.dot(radius13)))*radius13.norm()
+
+    electricForce2 = (k*(-e)*(3*e)/(radius2.dot(radius2)))*radius2.norm()
+    electricForce22 = (k*(-e)*(3*e)/(radius22.dot(radius22)))*radius22.norm()
+    electricForce23 = (k*(-e)*(3*e)/(radius23.dot(radius23)))*radius23.norm()
+
+    electricForce3 = (k*(-e)*(3*e)/(radius3.dot(radius3)))*radius3.norm()
+    electricForce32 = (k*(-e)*(3*e)/(radius32.dot(radius32)))*radius32.norm()
+    electricForce33 = (k*(-e)*(3*e)/(radius33.dot(radius33)))*radius33.norm()
+
+    #Define Force between Electron and Electron
+    # force e1 feels from e2
+    electricForce4 = (k*(-e)*(-e)/(eradius12.dot(eradius12)))*eradius12.norm()
+    # force e1 feels from e3
+    electricForce5 = (k*(-e)*(-e)/(eradius13.dot(eradius13)))*eradius13.norm()
+    # force e2 feels from e3
+    electricForce6 = (k*(-e)*(-e)/(eradius23.dot(eradius23)))*eradius23.norm()
+
+    #Define Kinematics for Electron
+    accel = (electricForce1+(-1*electricForce4)+(electricForce5))/electron1.mass
+    electron1.v = electron1.v + (accel)*dt
+    electron1.pos = electron1.pos + electron1.v*dt
+
+    accel2 = (electricForce2+(-1*electricForce6)+(-1* electricForce4))/electron2.mass
+    electron2.v = electron2.v + (accel2)*dt
+    electron2.pos = electron2.pos + electron2.v*dt
+
+    accel3 = (electricForce3+electricForce5+(electricForce6))/electron3.mass
+    electron3.v =(electron3.v + (accel3)*dt)
+    electron3.pos = electron3.pos + electron3.v*dt
+
+    #Define Kinematics for protons
+    paccel = (electricForce1)/proton1.mass
+    proton1.v = proton1.v + (paccel)*dt
+    proton1.pos = proton1.pos + proton1.v*dt
+
+    paccel2 = (electricForce2)/proton2.mass
+    proton2.v = proton2.v + (paccel2)*dt
+    proton2.pos = proton2.pos + proton2.v*dt
+
+    paccel3 = (electricForce3)/proton3.mass
+    proton3.v =(proton3.v + (paccel3)*dt)
+    proton3.pos = proton3.pos + proton3.v*dt  
+
+    #Update Trail and advance time
+    electrontrail.append(pos=electron1.pos)
+    electrontrail2.append(pos=electron2.pos)
+    electrontrail3.append(pos=electron3.pos)
+
+    t = t + dt
